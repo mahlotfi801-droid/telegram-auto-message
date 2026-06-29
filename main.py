@@ -10,15 +10,9 @@ def main():
     # توقيت القاهرة
     now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=2)))
     today = now.strftime("%Y-%m-%d")
-    hour = now.hour
-
-    task = None
-    if hour == MORNING_HOUR and state['last_morning_date'] != today:
-        task = ("morning", "last_morning_date")
-    elif hour == AFTERNOON_HOUR and state['last_afternoon_date'] != today:
-        task = ("afternoon", "last_afternoon_date")
-    elif hour == NIGHT_HOUR and state['last_night_date'] != today:
-        task = ("night", "last_night_date")
+    
+    # إجبار البوت على الإرسال للتجربة فقط
+    task = ("afternoon", "last_afternoon_date")
 
     if task:
         cat, date_key = task
