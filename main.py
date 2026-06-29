@@ -1,6 +1,6 @@
 import random
 import datetime
-from config import AFTERNOON_HOUR
+import config # تم تعديله لاستيراد الملف بالكامل
 from state_manager import load_state, save_state
 from sender import send_telegram_message
 from message_manager import get_messages, get_next_message
@@ -9,17 +9,20 @@ def main():
     state = load_state()
     today = datetime.date.today().isoformat()
     now = datetime.datetime.now()
-    
-    # التحقق من الوقت (توقيت السيرفر يجب أن يكون مساوياً لـ AFTERNOON_HOUR)
     current_hour = now.hour
     
-    # تحديد المهام المطلوبة اليوم
+    # تحديد المهام المطلوبة بناءً على الساعة الحالية
     task = None
-    if current_hour == AFTERNOON_HOUR:
-        if state.get("afternoon") != today:
-            task = ("afternoon", "afternoon")
+    
+    # التحقق من المواعيد الثلاثة
+    if current_hour == config.MORNING_HOUR and state.get("morning") != today:
+        task = ("morning", "morning")
+    elif current_hour == config.AFTERNOON_HOUR and state.get("afternoon") != today:
+        task = ("afternoon", "afternoon")
+    elif current_hour == config.NIGHT_HOUR and state.get("night") != today:
+        task = ("night", "night")
 
-    # تنفيذ المهمة إذا كان الوقت مناسباً وهناك مهمة معلقة
+    # تنفيذ المهمة إذا كان الوقت مناسباً
     if task:
         cat, date_key = task
         max_retries = 3
