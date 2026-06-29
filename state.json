@@ -1,8 +1,8 @@
 {
-  "morning": "",
-  "afternoon": "",
-  "night": "",
-  "morning_index": 0,
-  "afternoon_index": 0,
-  "night_index": 0
+    "morning": "",
+    "afternoon": "",
+    "night": "2026-06-29",
+    "morning_index": 0,
+    "afternoon_index": 0,
+    "night_index": 1
 }
