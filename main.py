@@ -1,41 +1,54 @@
-import datetime
 import random
-from config import MORNING_HOUR, AFTERNOON_HOUR, NIGHT_HOUR
+import datetime
+from config import AFTERNOON_HOUR
 from state_manager import load_state, save_state
-from message_manager import get_messages, get_next_message
 from sender import send_telegram_message
+from message_manager import get_messages, get_next_message
 
 def main():
     state = load_state()
-    # توقيت القاهرة
-    now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=2)))
-    current_hour = now.hour
-    today = now.strftime("%Y-%m-%d")
+    today = datetime.date.today().isoformat()
+    now = datetime.datetime.now()
     
-    # تحديد المهمة بناءً على الساعة
+    # التحقق من الوقت (توقيت السيرفر يجب أن يكون مساوياً لـ AFTERNOON_HOUR)
+    current_hour = now.hour
+    
+    # تحديد المهام المطلوبة اليوم
     task = None
-    if current_hour == MORNING_HOUR and state["last_morning_date"] != today:
-        task = ("morning", "last_morning_date")
-    elif current_hour == AFTERNOON_HOUR and state["last_afternoon_date"] != today:
-        task = ("afternoon", "last_afternoon_date")
-    elif current_hour == NIGHT_HOUR and state["last_night_date"] != today:
-        task = ("night", "last_night_date")
+    if current_hour == AFTERNOON_HOUR:
+        if state.get("afternoon") != today:
+            task = ("afternoon", "afternoon")
 
-    # تنفيذ المهمة إذا تحقق الشرط
+    # تنفيذ المهمة إذا كان الوقت مناسباً وهناك مهمة معلقة
     if task:
         cat, date_key = task
-        msgs = get_messages(f"messages/{cat}.txt")
-        emojis = get_messages("emoji.txt")
+        max_retries = 3
+        success = False
         
-        msg = get_next_message(cat, state, msgs)
-        full_msg = f"{msg} {random.choice(emojis)}"
+        print(f"بدء محاولة الإرسال لـ {cat}...")
         
-        if send_telegram_message(full_msg):
-            state[date_key] = today
-            save_state(state)
-            print(f"تم إرسال رسالة الـ {cat} بنجاح!")
+        for attempt in range(max_retries):
+            try:
+                msgs = get_messages(f"messages/{cat}.txt")
+                emojis = get_messages("emoji.txt")
+                msg = get_next_message(cat, state, msgs)
+                full_msg = f"{msg} {random.choice(emojis)}"
+                
+                if send_telegram_message(full_msg):
+                    state[date_key] = today
+                    save_state(state)
+                    print(f"تم الإرسال بنجاح في المحاولة {attempt + 1}")
+                    success = True
+                    break 
+                else:
+                    print(f"فشلت المحاولة {attempt + 1}: لم يتم استلام تأكيد من تليجرام")
+            except Exception as e:
+                print(f"محاولة {attempt + 1} فشلت بسبب خطأ: {e}")
+        
+        if not success:
+            print("فشلت جميع المحاولات، سيتم إعادة المحاولة في الساعة القادمة.")
     else:
-        print(f"لا يوجد موعد إرسال حالياً (الساعة الآن {current_hour})")
+        print("ليس وقت الإرسال أو تم الإرسال مسبقاً.")
 
 if __name__ == "__main__":
     main()
