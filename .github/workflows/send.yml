@@ -1,18 +1,20 @@
-name: Send Message
+name: Send Telegram Messages
 
 on:
   schedule:
-    - cron: "0 * * * *"
+    # نشغل كل دقيقة
+    - cron: "* * * * *"
   workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  build:
+  send-message:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
       
@@ -20,19 +22,26 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.9'
+      
+      - name: Set timezone to Egypt
+        run: |
+          sudo timedatectl set-timezone Africa/Cairo
+          date  # هتطبع الوقت الحالي عشان تتأكدي
           
       - name: Install dependencies
-        run: pip install requests
+        run: |
+          pip install requests pytz  # مهم نضيف pytz
         
       - name: Run script
         env:
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
           CHAT_ID: ${{ secrets.CHAT_ID }}
+          TZ: Africa/Cairo  # مهم جداً!
         run: python main.py
         
-      - name: Commit state
+      - name: Save state
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git add state.json
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Update state" && git push)
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update state [skip ci]" && git push)
