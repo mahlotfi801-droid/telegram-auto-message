@@ -13,62 +13,48 @@ def get_egypt_time():
     return datetime.datetime.now(egypt_tz)
 
 def is_time_to_send(target_hour, current_hour, current_minute):
-    """
-    تتحقق إذا كان الوقت مناسب للإرسال
-    تسمح بتأخير حتى GRACE_MINUTES دقيقة
-    """
-    # الساعة المحددة + السماح بالتأخير
-    # مثال: لو الموعد 11:00 والسماح 15 دقيقة
-    # هتبعت من 11:00 لحد 11:15
-    
-    # نبدأ من الوقت المحدد
-    target_time = datetime.time(target_hour, 0, 0)
-    current_time = datetime.time(current_hour, current_minute, 0)
-    
-    # نحسب الفرق بالدقائق
+    """تتحقق إذا كان الوقت مناسب للإرسال"""
     diff_minutes = (current_hour - target_hour) * 60 + current_minute
-    
-    # لو الوقت جه أو تأخر لكن في حدود المسموح
     if diff_minutes >= 0 and diff_minutes <= config.GRACE_MINUTES:
         return True
     return False
 
 def main():
-    # نجيب التوكن من GitHub Secrets لو موجود
+    # نجيب التوكن من GitHub Secrets
     if os.getenv('BOT_TOKEN'):
         config.BOT_TOKEN = os.getenv('BOT_TOKEN')
         config.CHAT_ID = os.getenv('CHAT_ID')
     
-    # نجيب الوقت بتوقيت مصر
+    # نتحقق إن التوكن موجود
+    if not config.BOT_TOKEN or not config.CHAT_ID:
+        print("❌ التوكن أو الـ CHAT_ID مش موجودين في Secrets!")
+        return
+    
     now = get_egypt_time()
     current_hour = now.hour
     current_minute = now.minute
     today = now.date().isoformat()
     
-    # نحمل الحالة السابقة
     state = load_state()
 
     print(f"🕐 الوقت بتاع مصر: {now.strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"📅 النهاردة: {today}")
     print(f"⏰ الساعة دلوقتي: {current_hour}:{current_minute:02d}")
-    print(f"📋 المواعيد المحددة: {config.MORNING_HOUR}, {config.AFTERNOON_HOUR}, {config.NIGHT_HOUR}")
+    print(f"📋 المواعيد: {config.MORNING_HOUR}, {config.AFTERNOON_HOUR}, {config.NIGHT_HOUR}")
     print(f"⏳ فترة السماح: {config.GRACE_MINUTES} دقيقة")
     
-    # نحدد المهمة المطلوبة
     task = None
     
-    # نتحقق من المواعيد مع السماح بالتأخير
     if is_time_to_send(config.MORNING_HOUR, current_hour, current_minute) and state.get("morning") != today:
         task = ("morning", "morning")
-        print("⏰ وقت الرسالة الصباحية (مع سماح تأخير)!")
+        print("⏰ وقت الرسالة الصباحية!")
     elif is_time_to_send(config.AFTERNOON_HOUR, current_hour, current_minute) and state.get("afternoon") != today:
         task = ("afternoon", "afternoon")
-        print("⏰ وقت الرسالة الظهرية (مع سماح تأخير)!")
+        print("⏰ وقت الرسالة الظهرية!")
     elif is_time_to_send(config.NIGHT_HOUR, current_hour, current_minute) and state.get("night") != today:
         task = ("night", "night")
-        print("⏰ وقت الرسالة المسائية (مع سماح تأخير)!")
+        print("⏰ وقت الرسالة المسائية!")
     
-    # لو في مهمة، ننفذها
     if task:
         cat, date_key = task
         max_retries = 3
@@ -78,7 +64,6 @@ def main():
 
         for attempt in range(max_retries):
             try:
-                # نجيب الرسائل
                 msgs = get_messages(f"messages/{cat}.txt")
                 emojis = get_messages("emoji.txt")
                 msg = get_next_message(cat, state, msgs)
@@ -86,9 +71,7 @@ def main():
 
                 print(f"📝 الرسالة: {full_msg}")
 
-                # نبعت الرسالة
                 if send_telegram_message(full_msg):
-                    # نحفظ التاريخ عشان مايبعتش تاني النهاردة
                     state[date_key] = today
                     save_state(state)
                     print(f"✅ تم إرسال رسالة {cat} بنجاح!")
@@ -102,7 +85,7 @@ def main():
         if not success:
             print("❌ فشل إرسال جميع المحاولات")
     else:
-        print(f"⏳ مش وقت إرسال أو تم الإرسال مسبقاً")
+        print("⏳ مش وقت إرسال أو تم الإرسال مسبقاً")
 
 if __name__ == "__main__":
     main()
