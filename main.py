@@ -12,6 +12,27 @@ def get_egypt_time():
     egypt_tz = pytz.timezone('Africa/Cairo')
     return datetime.datetime.now(egypt_tz)
 
+def is_time_to_send(target_hour, current_hour, current_minute):
+    """
+    تتحقق إذا كان الوقت مناسب للإرسال
+    تسمح بتأخير حتى GRACE_MINUTES دقيقة
+    """
+    # الساعة المحددة + السماح بالتأخير
+    # مثال: لو الموعد 11:00 والسماح 15 دقيقة
+    # هتبعت من 11:00 لحد 11:15
+    
+    # نبدأ من الوقت المحدد
+    target_time = datetime.time(target_hour, 0, 0)
+    current_time = datetime.time(current_hour, current_minute, 0)
+    
+    # نحسب الفرق بالدقائق
+    diff_minutes = (current_hour - target_hour) * 60 + current_minute
+    
+    # لو الوقت جه أو تأخر لكن في حدود المسموح
+    if diff_minutes >= 0 and diff_minutes <= config.GRACE_MINUTES:
+        return True
+    return False
+
 def main():
     # نجيب التوكن من GitHub Secrets لو موجود
     if os.getenv('BOT_TOKEN'):
@@ -31,20 +52,21 @@ def main():
     print(f"📅 النهاردة: {today}")
     print(f"⏰ الساعة دلوقتي: {current_hour}:{current_minute:02d}")
     print(f"📋 المواعيد المحددة: {config.MORNING_HOUR}, {config.AFTERNOON_HOUR}, {config.NIGHT_HOUR}")
+    print(f"⏳ فترة السماح: {config.GRACE_MINUTES} دقيقة")
     
     # نحدد المهمة المطلوبة
     task = None
     
-    # نتحقق من المواعيد الثلاثة (فقط في الدقيقة 0 عشان مايبعتش كذا مرة)
-    if current_hour == config.MORNING_HOUR and current_minute == 0 and state.get("morning") != today:
+    # نتحقق من المواعيد مع السماح بالتأخير
+    if is_time_to_send(config.MORNING_HOUR, current_hour, current_minute) and state.get("morning") != today:
         task = ("morning", "morning")
-        print("⏰ وقت الرسالة الصباحية!")
-    elif current_hour == config.AFTERNOON_HOUR and current_minute == 0 and state.get("afternoon") != today:
+        print("⏰ وقت الرسالة الصباحية (مع سماح تأخير)!")
+    elif is_time_to_send(config.AFTERNOON_HOUR, current_hour, current_minute) and state.get("afternoon") != today:
         task = ("afternoon", "afternoon")
-        print("⏰ وقت الرسالة الظهرية!")
-    elif current_hour == config.NIGHT_HOUR and current_minute == 0 and state.get("night") != today:
+        print("⏰ وقت الرسالة الظهرية (مع سماح تأخير)!")
+    elif is_time_to_send(config.NIGHT_HOUR, current_hour, current_minute) and state.get("night") != today:
         task = ("night", "night")
-        print("⏰ وقت الرسالة المسائية!")
+        print("⏰ وقت الرسالة المسائية (مع سماح تأخير)!")
     
     # لو في مهمة، ننفذها
     if task:
