@@ -1,9 +1,22 @@
-# config.py
-# حط الـ Token والـ ID اللي جبتهم من تليجرام هنا
-BOT_TOKEN = "8929911107:AAHWMRbeYLZSyiIeQhmEAdDZvz3Ai53Nc40"
-CHAT_ID = "1636617652"
+import os
+from datetime import datetime, timedelta
+import pytz
 
-# التوقيتات (بنظام 24 ساعة)
-MORNING_HOUR = 4   # الساعة 7 صباحاً
-AFTERNOON_HOUR = 14 # الساعة 5 عصراً
-NIGHT_HOUR = 20    # الساعة 11 ليلاً
+# التوكن والـ ID
+BOT_TOKEN = os.getenv('BOT_TOKEN', "8929911107:AAHWMRbeYLZSyiIeQhmEAdDZvz3Ai53Nc40")
+CHAT_ID = os.getenv('CHAT_ID', "1636617652")
+
+# طريقة 1: استخدام توقيت مصر مباشرة
+def get_egypt_time():
+    egypt_tz = pytz.timezone('Africa/Cairo')
+    return datetime.now(egypt_tz)
+
+# طريقة 2: استخدام UTC مع إضافة فارق التوقيت (مصر = UTC+2)
+# ملاحظة: في الصيف مصر بتستخدم UTC+3
+UTC_OFFSET = 2  # في الشتاء
+# UTC_OFFSET = 3  # في الصيف (التوقيت الصيفي)
+
+# المواعيد بتوقيت مصر (نفس المواعيد اللي انتي عايزاها)
+MORNING_HOUR = 4    # 4 صباحاً
+AFTERNOON_HOUR = 14 # 2 ظهراً
+NIGHT_HOUR = 20     # 8 مساءً
