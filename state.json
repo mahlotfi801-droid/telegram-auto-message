@@ -1,8 +1,8 @@
 {
     "morning": "2026-06-30",
-    "afternoon": "",
+    "afternoon": "2026-06-30",
     "night": "",
     "morning_index": 4,
-    "afternoon_index": 4,
+    "afternoon_index": 5,
     "night_index": 3
 }
