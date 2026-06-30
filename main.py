@@ -2,6 +2,7 @@ import random
 import datetime
 import config
 import os
+import pytz  # مهم نضيف المكتبة دي
 from state_manager import load_state, save_state
 from sender import send_telegram_message
 from message_manager import get_messages, get_next_message
@@ -12,26 +13,22 @@ def main():
         config.BOT_TOKEN = os.getenv('BOT_TOKEN')
         config.CHAT_ID = os.getenv('CHAT_ID')
     
-    state = load_state()
-    today = datetime.date.today().isoformat()
-    now = datetime.datetime.now()
+    # نضبط التوقيت بتاع مصر
+    egypt_tz = pytz.timezone('Africa/Cairo')
+    now = datetime.datetime.now(egypt_tz)
+    
+    # نستخدم التوقيت المصري
     current_hour = now.hour
     current_minute = now.minute
+    today = now.date().isoformat()
+    
+    state = load_state()
 
-    print(f"🕐 {now} - التحقق من الوقت...")
-    
-    # نضبط المواعيد حسب UTC (لأن GitHub Actions بتستخدم UTC)
-    # لو انتي في مصر (UTC+2)، المواعيد هتكون:
-    # 4 صباحاً بتوقيت مصر = 2 UTC
-    # 2 ظهراً بتوقيت مصر = 12 UTC  
-    # 8 مساءً بتوقيت مصر = 18 UTC
-    
-    # أو استخدمي التوقيت المحلي لو عايزة
-    # local_hour = (current_hour + 2) % 24  # لو في مصر UTC+2
+    print(f"🕐 الوقت بتاع مصر: {now.strftime('%Y-%m-%d %H:%M:%S')}")
     
     task = None
     
-    # نشوف لو الوقت جه
+    # دلوقتي بنستخدم التوقيت المصري مباشرة
     if current_hour == config.MORNING_HOUR and current_minute == 0 and state.get("morning") != today:
         task = ("morning", "morning")
         print("⏰ وقت الرسالة الصباحية!")
@@ -49,13 +46,11 @@ def main():
 
         for attempt in range(max_retries):
             try:
-                # نجيب الرسائل
                 msgs = get_messages(f"messages/{cat}.txt")
                 emojis = get_messages("emoji.txt")
                 msg = get_next_message(cat, state, msgs)
                 full_msg = f"{msg} {random.choice(emojis)}"
 
-                # نبعت الرسالة
                 if send_telegram_message(full_msg):
                     state[date_key] = today
                     save_state(state)
@@ -70,7 +65,7 @@ def main():
         if not success:
             print("❌ فشل إرسال جميع المحاولات")
     else:
-        print("⏳ مش وقت إرسال أو تم الإرسال مسبقاً")
+        print(f"⏳ مش وقت إرسال أو تم الإرسال مسبقاً - الساعة {current_hour}:{current_minute:02d}")
 
 if __name__ == "__main__":
     main()
