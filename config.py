@@ -17,6 +17,6 @@ UTC_OFFSET = 2  # في الشتاء
 # UTC_OFFSET = 3  # في الصيف (التوقيت الصيفي)
 
 # المواعيد بتوقيت مصر (نفس المواعيد اللي انتي عايزاها)
-MORNING_HOUR = 4    # 4 صباحاً
-AFTERNOON_HOUR = 14 # 2 ظهراً
-NIGHT_HOUR = 20     # 8 مساءً
+MORNING_HOUR = 11    # 1 صباحاً
+AFTERNOON_HOUR = 12 # 12 ظهراً
+NIGHT_HOUR = 13     # 1 مساءً
