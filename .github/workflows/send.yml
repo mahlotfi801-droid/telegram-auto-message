@@ -2,7 +2,7 @@ name: Send Telegram Messages
 
 on:
   schedule:
-    # نشغل كل دقيقة
+    # نشغل كل دقيقة عشان نضمن الدقة
     - cron: "* * * * *"
   workflow_dispatch:
 
@@ -23,20 +23,14 @@ jobs:
         with:
           python-version: '3.9'
       
-      - name: Set timezone to Egypt
-        run: |
-          sudo timedatectl set-timezone Africa/Cairo
-          date  # هتطبع الوقت الحالي عشان تتأكدي
-          
       - name: Install dependencies
         run: |
-          pip install requests pytz  # مهم نضيف pytz
-        
+          pip install requests pytz
+          
       - name: Run script
         env:
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
           CHAT_ID: ${{ secrets.CHAT_ID }}
-          TZ: Africa/Cairo  # مهم جداً!
         run: python main.py
         
       - name: Save state
