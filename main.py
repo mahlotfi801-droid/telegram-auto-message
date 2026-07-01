@@ -39,21 +39,24 @@ def main():
 
     print(f"🕐 الوقت بتاع مصر: {now.strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"📅 النهاردة: {today}")
-    print(f"⏰ الساعة دلوقتي: {current_hour}:{current_minute:02d}")
-    print(f"📋 المواعيد: {config.MORNING_HOUR}, {config.AFTERNOON_HOUR}, {config.NIGHT_HOUR}")
-    print(f"⏳ فترة السماح: {config.GRACE_MINUTES} دقيقة")
+    
+    # قائمة المواعيد وملفاتها
+    schedule = [
+        (config.MORNING_HOUR, "morning", "morning"),
+        (config.AFTERNOON_HOUR, "afternoon", "afternoon"),
+        (config.NIGHT_HOUR, "night", "night"),
+        (config.EVENING_HOUR_1, "evening1", "evening1"),
+        (config.EVENING_HOUR_2, "evening2", "evening2"),
+        (config.EVENING_HOUR_3, "evening3", "evening3"),
+        (config.EVENING_HOUR_4, "evening4", "evening4"),
+        (config.EVENING_HOUR_5, "evening5", "evening5"),
+    ]
     
     task = None
-    
-    if is_time_to_send(config.MORNING_HOUR, current_hour, current_minute) and state.get("morning") != today:
-        task = ("morning", "morning")
-        print("⏰ وقت الرسالة الصباحية!")
-    elif is_time_to_send(config.AFTERNOON_HOUR, current_hour, current_minute) and state.get("afternoon") != today:
-        task = ("afternoon", "afternoon")
-        print("⏰ وقت الرسالة الظهرية!")
-    elif is_time_to_send(config.NIGHT_HOUR, current_hour, current_minute) and state.get("night") != today:
-        task = ("night", "night")
-        print("⏰ وقت الرسالة المسائية!")
+    for hour, cat, date_key in schedule:
+        if is_time_to_send(hour, current_hour, current_minute) and state.get(date_key) != today:
+            task = (cat, date_key)
+            break
     
     if task:
         cat, date_key = task
@@ -76,7 +79,7 @@ def main():
                     save_state(state)
                     print(f"✅ تم إرسال رسالة {cat} بنجاح!")
                     success = True
-                    break 
+                    break
                 else:
                     print(f"❌ فشلت المحاولة {attempt + 1}")
             except Exception as e:
