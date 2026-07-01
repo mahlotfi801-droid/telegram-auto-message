@@ -3,6 +3,7 @@ import time
 from config import BOT_TOKEN, CHAT_ID
 
 def send_telegram_message(text):
+    """تبعت رسالة للـ Chat ID المحدد"""
     if not BOT_TOKEN or not CHAT_ID:
         print("❌ التوكن أو الـ CHAT_ID مش موجودين!")
         return False
