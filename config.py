@@ -7,7 +7,7 @@ CHAT_ID = os.getenv('CHAT_ID')  # أو CHAT_IDS
 # المواعيد بتوقيت مصر (8 مواعيد)
 MORNING_HOUR = 7    # 7 ظهراً
 AFTERNOON_HOUR = 20  # 9 ظهراً
-NIGHT_HOUR = 24      # 11 ظهراً
+NIGHT_HOUR = 00      # 11 ظهراً
 EVENING_HOUR_1 = 11  # 11 صباجاً
 EVENING_HOUR_2 = 23  # 1 عصراً
 EVENING_HOUR_3 = 16  # 4 مساءً
