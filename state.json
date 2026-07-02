@@ -1,7 +1,7 @@
 {
     "morning": "2026-07-02",
     "afternoon": "2026-07-02",
-    "night": "2026-07-01",
+    "night": "2026-07-03",
     "evening1": "2026-07-02",
     "evening2": "2026-07-02",
     "evening3": "2026-07-01",
@@ -9,7 +9,7 @@
     "evening5": "2026-07-02",
     "morning_index": 0,
     "afternoon_index": 0,
-    "night_index": 0,
+    "night_index": 1,
     "evening1_index": 0,
     "evening2_index": 1,
     "evening3_index": 0,
