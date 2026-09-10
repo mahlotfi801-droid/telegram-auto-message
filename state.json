@@ -4,7 +4,7 @@
     "night": "2026-09-10",
     "evening1": "2026-09-10",
     "evening2": "2026-09-10",
-    "evening3": "2026-09-09",
+    "evening3": "2026-09-10",
     "evening4": "2026-09-10",
     "evening5": "2026-09-10",
     "morning_index": 70,
@@ -12,7 +12,7 @@
     "night_index": 69,
     "evening1_index": 70,
     "evening2_index": 71,
-    "evening3_index": 69,
+    "evening3_index": 70,
     "evening4_index": 71,
     "evening5_index": 70
 }
