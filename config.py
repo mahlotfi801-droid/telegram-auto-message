@@ -11,7 +11,7 @@ EVENING_HOUR_2 = 15  # 3 عصراً
 AFTERNOON_HOUR = 17  # 5 ظهراً
 EVENING_HOUR_4 = 18  # 6 مساءً
 EVENING_HOUR_5 = 20  # 8 مساءً
-EVENING_HOUR_3 = 22  # 10 مساءً
+EVENING_HOUR_3 = 23  # 10 مساءً
 NIGHT_HOUR = 00      # 12 في منصف الليلاً
 # فترة السماح
 GRACE_MINUTES = 55
