@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   send-message:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04  # تم التثبيت على إصدار قديم يدعم بايثون 3.9
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
